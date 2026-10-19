@@ -1,0 +1,503 @@
+<title>Runsheet AI</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+
+<style>
+  :root {
+    --bg: #f9f9f8;
+    --surface: #ffffff;
+    --border: #e5e4e1;
+    --fg: #1a1a18;
+    --fg-2: #6b6b66;
+    --accent: #1a6b3c;
+    --accent-light: #eaf4ee;
+    --tag-bg: #f0f0ee;
+    --radius: 10px;
+
+    /* Workstream colors */
+    --ws-strategy:    #2563eb;
+    --ws-strategy-bg: #eff6ff;
+    --ws-content:     #d97706;
+    --ws-content-bg:  #fffbeb;
+    --ws-marketing:   #7c3aed;
+    --ws-marketing-bg:#f5f3ff;
+    --ws-logistics:   #059669;
+    --ws-logistics-bg:#ecfdf5;
+    --ws-partners:    #db2777;
+    --ws-partners-bg: #fdf2f8;
+    --ws-post:        #475569;
+    --ws-post-bg:     #f8fafc;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #161614;
+      --surface: #1f1f1c;
+      --border: #2e2e2a;
+      --fg: #f0f0ec;
+      --fg-2: #9a9a94;
+      --accent: #3aaa64;
+      --accent-light: #1a2e20;
+      --tag-bg: #2a2a26;
+      --ws-strategy:    #60a5fa;
+      --ws-strategy-bg: #1e2a3a;
+      --ws-content:     #fbbf24;
+      --ws-content-bg:  #2a1f0a;
+      --ws-marketing:   #a78bfa;
+      --ws-marketing-bg:#1e1a2e;
+      --ws-logistics:   #34d399;
+      --ws-logistics-bg:#0a1f18;
+      --ws-partners:    #f472b6;
+      --ws-partners-bg: #2a0f1e;
+      --ws-post:        #94a3b8;
+      --ws-post-bg:     #1a1f26;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #161614;
+    --surface: #1f1f1c;
+    --border: #2e2e2a;
+    --fg: #f0f0ec;
+    --fg-2: #9a9a94;
+    --accent: #3aaa64;
+    --accent-light: #1a2e20;
+    --tag-bg: #2a2a26;
+    --ws-strategy:    #60a5fa;
+    --ws-strategy-bg: #1e2a3a;
+    --ws-content:     #fbbf24;
+    --ws-content-bg:  #2a1f0a;
+    --ws-marketing:   #a78bfa;
+    --ws-marketing-bg:#1e1a2e;
+    --ws-logistics:   #34d399;
+    --ws-logistics-bg:#0a1f18;
+    --ws-partners:    #f472b6;
+    --ws-partners-bg: #2a0f1e;
+    --ws-post:        #94a3b8;
+    --ws-post-bg:     #1a1f26;
+    color-scheme: dark;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--fg);
+    margin: 0;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 48px 80px;
+    min-height: 100%;
+  }
+
+  .page { max-width: 680px; margin: 0 auto; display: flex; flex-direction: column; gap: 32px; }
+
+  .header { display: flex; flex-direction: column; gap: 6px; }
+  .header h1 {
+    font-size: 1.25rem; font-weight: 600; letter-spacing: -0.02em; margin: 0;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .header h1 .dot {
+    display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--accent);
+  }
+  .header p { font-size: 0.875rem; color: var(--fg-2); margin: 0; line-height: 1.5; }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 24px;
+    display: flex; flex-direction: column; gap: 20px;
+  }
+
+  .section-label {
+    font-size: 0.7rem; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--fg-2); padding-bottom: 4px;
+    border-bottom: 1px solid var(--border); margin-bottom: 4px;
+  }
+
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: 0.8125rem; font-weight: 500; color: var(--fg); }
+  .field input, .field select, .field textarea {
+    font-family: inherit; font-size: 0.875rem; color: var(--fg);
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 7px; padding: 9px 12px; outline: none;
+    transition: border-color 0.15s; width: 100%; min-width: 0;
+  }
+  .field textarea { resize: vertical; min-height: 76px; line-height: 1.5; }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent);
+  }
+  .field-hint { font-size: 0.75rem; color: var(--fg-2); margin-top: 2px; }
+
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .field-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  @media (max-width: 520px) {
+    .field-row, .field-row-3 { grid-template-columns: 1fr; }
+  }
+
+  .btn {
+    font-family: inherit; font-size: 0.875rem; font-weight: 500;
+    background: var(--accent); color: #fff; border: none;
+    border-radius: 7px; padding: 11px 20px; cursor: pointer;
+    transition: opacity 0.15s; align-self: flex-start;
+  }
+  .btn:hover:not(:disabled) { opacity: 0.88; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn.full { align-self: stretch; }
+
+  .loading {
+    display: flex; align-items: center; gap: 10px;
+    color: var(--fg-2); font-size: 0.875rem; padding: 12px 0;
+  }
+  .spinner {
+    width: 16px; height: 16px; border: 2px solid var(--border);
+    border-top-color: var(--accent); border-radius: 50%;
+    animation: spin 0.7s linear infinite; flex-shrink: 0;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .error-box {
+    background: #fef2f2; border: 1px solid #fecaca;
+    border-radius: 7px; padding: 12px 14px;
+    font-size: 0.8125rem; color: #b91c1c;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .error-box { background:#2a1414;border-color:#7f1d1d;color:#f87171; }
+  }
+  :root[data-theme="dark"] .error-box { background:#2a1414;border-color:#7f1d1d;color:#f87171; }
+
+  /* Results */
+  .results-header {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 12px; flex-wrap: wrap; margin-bottom: 4px;
+  }
+  .results-header h2 { font-size: 1rem; font-weight: 600; margin: 0; }
+  .results-meta { font-size: 0.8125rem; color: var(--fg-2); }
+
+  /* Workstream group */
+  .ws-group { display: flex; flex-direction: column; gap: 0; }
+  .ws-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px;
+    border-radius: var(--radius) var(--radius) 0 0;
+    border: 1px solid var(--border);
+  }
+  .ws-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .ws-title { font-size: 0.8125rem; font-weight: 600; flex: 1; }
+  .ws-count { font-size: 0.75rem; color: var(--fg-2); }
+
+  .task-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-top: none; padding: 13px 16px;
+    display: flex; flex-direction: column; gap: 5px;
+  }
+  .task-item:last-child { border-radius: 0 0 var(--radius) var(--radius); }
+
+  .task-title { font-size: 0.875rem; font-weight: 500; line-height: 1.4; }
+
+  .task-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 2px; }
+  .tag {
+    font-size: 0.72rem; font-weight: 500; border-radius: 4px;
+    padding: 2px 7px; letter-spacing: 0.01em; white-space: nowrap;
+    background: var(--tag-bg); color: var(--fg-2);
+  }
+  .tag.owner { background: var(--accent-light); color: var(--accent); }
+
+  .task-desc { font-size: 0.8125rem; color: var(--fg-2); line-height: 1.5; }
+
+  .ws-gap { height: 12px; }
+
+  .api-key-note { font-size: 0.75rem; color: var(--fg-2); line-height: 1.5; padding-top: 4px; }
+  .api-key-note a { color: var(--accent); text-decoration: none; }
+
+  /* Summary row */
+  .summary-row {
+    display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px;
+  }
+  .summary-pill {
+    display: flex; align-items: center; gap: 6px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 20px; padding: 5px 12px;
+    font-size: 0.8rem;
+  }
+  .summary-pill .dot { width: 7px; height: 7px; border-radius: 50%; }
+</style>
+
+<div class="page">
+  <div class="header">
+    <h1><span class="dot"></span> Runsheet AI</h1>
+    <p>Fill in your event brief and get a full runsheet — tasks grouped by workstream, with owners and due dates.</p>
+  </div>
+
+  <div class="card">
+    <div class="field">
+      <label for="apiKey">Anthropic API Key</label>
+      <input type="password" id="apiKey" placeholder="sk-ant-..." autocomplete="off">
+      <p class="api-key-note">Used only in this browser session. Get a key at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>.</p>
+    </div>
+
+    <div class="section-label">Event Details</div>
+
+    <div class="field-row">
+      <div class="field">
+        <label for="eventName">Event Name</label>
+        <input type="text" id="eventName" placeholder="e.g. Q3 CFO Roundtable">
+      </div>
+      <div class="field">
+        <label for="eventDate">Event Date</label>
+        <input type="date" id="eventDate">
+      </div>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label for="eventFormat">Format</label>
+        <select id="eventFormat">
+          <option value="roundtable">Roundtable / Dinner</option>
+          <option value="conference">Conference / Summit</option>
+          <option value="webinar">Webinar</option>
+          <option value="lunch_and_learn">Lunch &amp; Learn</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="audience">Target Audience</label>
+        <input type="text" id="audience" placeholder="e.g. CFOs at FTSE 250 companies">
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="objectives">Objectives</label>
+      <textarea id="objectives" placeholder="e.g. Generate £100k in pipeline, deepen relationships with 20 senior finance leaders"></textarea>
+    </div>
+
+    <div class="section-label">Optional Context</div>
+
+    <div class="field">
+      <label for="themes">Key Themes / Topics</label>
+      <input type="text" id="themes" placeholder="e.g. AI in finance, CFO priorities for 2025, cost optimisation">
+    </div>
+
+    <div class="field">
+      <label for="partners">Partners / Co-hosts</label>
+      <input type="text" id="partners" placeholder="e.g. Deloitte, KPMG — leave blank if none">
+    </div>
+
+    <button class="btn full" id="generateBtn" onclick="generate()">Generate Runsheet</button>
+  </div>
+
+  <div id="output"></div>
+</div>
+
+<script>
+  const WORKSTREAMS = [
+    'Strategy & Planning',
+    'Content & Speakers',
+    'Marketing & Promotion',
+    'Logistics & Operations',
+    'Sponsorship & Partners',
+    'Post-Event',
+  ];
+
+  const WS_COLORS = {
+    'Strategy & Planning':   { dot: '#2563eb', bg: 'var(--ws-strategy-bg)', fg: 'var(--ws-strategy)' },
+    'Content & Speakers':    { dot: '#d97706', bg: 'var(--ws-content-bg)',   fg: 'var(--ws-content)' },
+    'Marketing & Promotion': { dot: '#7c3aed', bg: 'var(--ws-marketing-bg)', fg: 'var(--ws-marketing)' },
+    'Logistics & Operations':{ dot: '#059669', bg: 'var(--ws-logistics-bg)', fg: 'var(--ws-logistics)' },
+    'Sponsorship & Partners':{ dot: '#db2777', bg: 'var(--ws-partners-bg)',  fg: 'var(--ws-partners)' },
+    'Post-Event':            { dot: '#475569', bg: 'var(--ws-post-bg)',       fg: 'var(--ws-post)' },
+  };
+
+  async function generate() {
+    const apiKey    = document.getElementById('apiKey').value.trim();
+    const eventName = document.getElementById('eventName').value.trim();
+    const eventDate = document.getElementById('eventDate').value;
+    const eventFormat = document.getElementById('eventFormat').value;
+    const audience  = document.getElementById('audience').value.trim();
+    const objectives = document.getElementById('objectives').value.trim();
+    const themes    = document.getElementById('themes').value.trim();
+    const partners  = document.getElementById('partners').value.trim();
+    const btn = document.getElementById('generateBtn');
+    const output = document.getElementById('output');
+
+    if (!apiKey)     { showError('Please enter your Anthropic API key.'); return; }
+    if (!eventName)  { showError('Please enter an event name.'); return; }
+    if (!objectives) { showError('Please describe the event objectives.'); return; }
+
+    btn.disabled = true;
+    output.innerHTML = `<div class="loading"><div class="spinner"></div>Generating your runsheet…</div>`;
+
+    const formatLabels = {
+      roundtable: 'Roundtable / Dinner',
+      conference: 'Conference / Summit',
+      webinar: 'Webinar',
+      lunch_and_learn: 'Lunch & Learn',
+    };
+
+    const prompt = `You are helping a B2B event marketer plan an event. Generate a comprehensive task runsheet based on this brief.
+
+Event Name: ${eventName}
+Format: ${formatLabels[eventFormat]}
+${eventDate ? `Event Date: ${eventDate}` : ''}
+${audience ? `Target Audience: ${audience}` : ''}
+Objectives: ${objectives}
+${themes ? `Key Themes: ${themes}` : ''}
+${partners ? `Partners / Co-hosts: ${partners}` : ''}
+
+Return a JSON array of tasks. Each task must have:
+- title: short, clear task title
+- workstream: MUST be exactly one of: "Strategy & Planning", "Content & Speakers", "Marketing & Promotion", "Logistics & Operations", "Sponsorship & Partners", "Post-Event"
+- ownerRole: one of "Event Lead", "Marketing", "Content Lead", "Operations", "Partnerships"
+- dueDateOffsetDays: number of days BEFORE the event this task is due (e.g. 56 = 8 weeks out, 14 = 2 weeks out, 0 = event day, -7 = 1 week after)
+- description: one sentence specific to this event's brief
+
+Rules:
+- Aim for 18-24 tasks spread across workstreams
+- Make tasks specific to the objectives and audience — not generic
+- If partners are mentioned, include Sponsorship & Partners tasks
+- Post-Event tasks should include follow-up and pipeline conversion steps
+- dueDateOffsetDays must be a number, not a string
+
+Return ONLY the JSON array, no other text.`;
+
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true',
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-5',
+          max_tokens: 3000,
+          messages: [{ role: 'user', content: prompt }],
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error?.message || `API error ${res.status}`);
+      }
+
+      const data = await res.json();
+      let text = data.content.find(c => c.type === 'text')?.text ?? '';
+      text = text.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim();
+      const tasks = JSON.parse(text);
+      renderTasks(tasks, eventName, eventDate);
+    } catch (e) {
+      if (e instanceof TypeError && e.message === 'Failed to fetch') {
+        showError('Network error: this page must be opened directly in a browser tab (not inside an iframe). Download and open the HTML file, or use the deployed link.');
+      } else {
+        showError(e.message || 'Something went wrong. Please try again.');
+      }
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  function showError(msg) {
+    document.getElementById('output').innerHTML = `<div class="error-box">${escHtml(msg)}</div>`;
+  }
+
+  function renderTasks(tasks, eventName, eventDate) {
+    if (!tasks || !tasks.length) { showError('No tasks returned. Try again.'); return; }
+
+    const eventDateObj = eventDate ? new Date(eventDate + 'T12:00:00') : null;
+
+    // Group by workstream in canonical order
+    const grouped = {};
+    for (const ws of WORKSTREAMS) grouped[ws] = [];
+    for (const t of tasks) {
+      const ws = WORKSTREAMS.find(w => w === t.workstream) ?? 'Strategy & Planning';
+      grouped[ws].push(t);
+    }
+    // Sort tasks within each group by due date (furthest out first)
+    for (const ws of WORKSTREAMS) {
+      grouped[ws].sort((a, b) => (b.dueDateOffsetDays ?? 0) - (a.dueDateOffsetDays ?? 0));
+    }
+
+    const output = document.getElementById('output');
+    output.innerHTML = '';
+
+    // Header
+    const header = document.createElement('div');
+    header.className = 'results-header';
+    header.innerHTML = `<h2>${escHtml(eventName)} — Runsheet</h2><span class="results-meta">${tasks.length} tasks across ${WORKSTREAMS.filter(w => grouped[w].length).length} workstreams</span>`;
+    output.appendChild(header);
+
+    // Summary pills
+    const summary = document.createElement('div');
+    summary.className = 'summary-row';
+    for (const ws of WORKSTREAMS) {
+      if (!grouped[ws].length) continue;
+      const c = WS_COLORS[ws] || {};
+      summary.innerHTML += `<div class="summary-pill"><span class="dot" style="background:${c.dot}"></span><span>${escHtml(ws)} · ${grouped[ws].length}</span></div>`;
+    }
+    output.appendChild(summary);
+
+    // Workstream groups
+    for (const ws of WORKSTREAMS) {
+      if (!grouped[ws].length) continue;
+      const c = WS_COLORS[ws] || { dot: '#888', bg: 'var(--tag-bg)', fg: 'var(--fg-2)' };
+
+      const group = document.createElement('div');
+      group.className = 'ws-group';
+
+      const wsHeader = document.createElement('div');
+      wsHeader.className = 'ws-header';
+      wsHeader.style.background = c.bg;
+      wsHeader.innerHTML = `
+        <span class="ws-dot" style="background:${c.dot}"></span>
+        <span class="ws-title" style="color:${c.fg}">${escHtml(ws)}</span>
+        <span class="ws-count">${grouped[ws].length} task${grouped[ws].length !== 1 ? 's' : ''}</span>
+      `;
+      group.appendChild(wsHeader);
+
+      for (const task of grouped[ws]) {
+        const item = document.createElement('div');
+        item.className = 'task-item';
+
+        let dueLabel = '';
+        if (eventDateObj && task.dueDateOffsetDays != null) {
+          const dueDate = new Date(eventDateObj);
+          dueDate.setDate(dueDate.getDate() - task.dueDateOffsetDays);
+          if (task.dueDateOffsetDays < 0) {
+            dueLabel = dueDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) + ' (post-event)';
+          } else {
+            dueLabel = dueDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+          }
+        } else if (task.dueDateOffsetDays != null) {
+          const d = task.dueDateOffsetDays;
+          dueLabel = d === 0 ? 'Event day' : d < 0 ? `${Math.abs(d)} days after` : `${d} days before`;
+        }
+
+        item.innerHTML = `
+          <div class="task-title">${escHtml(task.title)}</div>
+          <div class="task-meta">
+            ${task.ownerRole ? `<span class="tag owner">${escHtml(task.ownerRole)}</span>` : ''}
+            ${dueLabel ? `<span class="tag">${escHtml(dueLabel)}</span>` : ''}
+          </div>
+          ${task.description ? `<div class="task-desc">${escHtml(task.description)}</div>` : ''}
+        `;
+        group.appendChild(item);
+      }
+
+      output.appendChild(group);
+      const gap = document.createElement('div');
+      gap.className = 'ws-gap';
+      output.appendChild(gap);
+    }
+  }
+
+  function escHtml(s) {
+    return String(s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  // Default event date to ~8 weeks from today
+  const d = new Date();
+  d.setDate(d.getDate() + 56);
+  document.getElementById('eventDate').value = d.toISOString().split('T')[0];
+</script>
